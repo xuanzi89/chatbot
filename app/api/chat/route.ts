@@ -1,5 +1,3 @@
-import { Message } from '@/types/chat';
-
 const DEEPSEEK_API_KEY = 'sk-c31223b896104e78ae32992863d2cb17';
 const API_URL = 'https://api.deepseek.com/v1/chat/completions';
 
