@@ -73,7 +73,9 @@ export default function ChatPage() {
 
       const data = await response.json();
       
-      if (!response.ok) throw new Error(data.error);
+      if (!response.ok) {
+        throw new Error(data.error || '请求失败');
+      }
 
       const assistantMessage: Message = {
         role: 'assistant',
@@ -83,7 +85,10 @@ export default function ChatPage() {
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Chat error:', error);
-      // 可以添加错误提示UI
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: `错误: ${error instanceof Error ? error.message : '未知错误'}`
+      }]);
     } finally {
       setIsLoading(false);
     }

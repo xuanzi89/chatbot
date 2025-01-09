@@ -1,7 +1,14 @@
-const DEEPSEEK_API_KEY = 'sk-c31223b896104e78ae32992863d2cb17';
+const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 const API_URL = 'https://api.deepseek.com/v1/chat/completions';
 
 export async function POST(request: Request) {
+  if (!DEEPSEEK_API_KEY) {
+    return Response.json(
+      { error: 'API key not configured' },
+      { status: 500 }
+    );
+  }
+
   try {
     const { messages } = await request.json();
 
