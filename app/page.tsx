@@ -11,15 +11,12 @@ export default function Home() {
               AI Chat
             </span>
           </div>
-          <div className="flex items-center space-x-4">
-            <Link href="/login" className="text-gray-600 hover:text-gray-900">
-              登录
-            </Link>
+          <div>
             <Link 
-              href="/signup" 
+              href="/chat" 
               className="bg-black text-white px-4 py-2 rounded-full hover:bg-gray-800 transition-colors"
             >
-              注册
+              开始对话
             </Link>
           </div>
         </div>
