@@ -1,11 +1,41 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Message } from '@/types/chat';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 import 'highlight.js/styles/github-dark.css';
+import type { ComponentPropsWithoutRef } from 'react';
+
+interface CodeProps extends ComponentPropsWithoutRef<'code'> {
+  inline?: boolean;
+}
+
+const CodeBlock = ({ inline, className, children }: CodeProps) => {
+  const match = /language-(\w+)/.exec(className || '');
+  return !inline && match ? (
+    <div className="relative group">
+      <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <button
+          onClick={() => {
+            navigator.clipboard.writeText(String(children));
+          }}
+          className="text-xs px-2 py-1 rounded bg-gray-700 text-white hover:bg-gray-600"
+        >
+          复制
+        </button>
+      </div>
+      <code className={className}>
+        {children}
+      </code>
+    </div>
+  ) : (
+    <code className={className}>
+      {children}
+    </code>
+  );
+};
 
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -21,7 +51,7 @@ export default function ChatPage() {
     scrollToBottom();
   }, [messages]);
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
 
@@ -91,30 +121,7 @@ export default function ChatPage() {
                       remarkPlugins={[remarkGfm]}
                       rehypePlugins={[rehypeHighlight]}
                       components={{
-                        code({ inline, className, children, ...props }) {
-                          const match = /language-(\w+)/.exec(className || '');
-                          return !inline && match ? (
-                            <div className="relative group">
-                              <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button
-                                  onClick={() => {
-                                    navigator.clipboard.writeText(String(children));
-                                  }}
-                                  className="text-xs px-2 py-1 rounded bg-gray-700 text-white hover:bg-gray-600"
-                                >
-                                  复制
-                                </button>
-                              </div>
-                              <code className={className} {...props}>
-                                {children}
-                              </code>
-                            </div>
-                          ) : (
-                            <code className={className} {...props}>
-                              {children}
-                            </code>
-                          );
-                        },
+                        code: CodeBlock
                       }}
                     >
                       {message.content}
@@ -148,7 +155,11 @@ export default function ChatPage() {
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault();
-                  handleSubmit(e);
+                  const form = e.currentTarget.form;
+                  if (form) {
+                    const formEvent = new Event('submit', { cancelable: true });
+                    form.dispatchEvent(formEvent);
+                  }
                 }
               }}
             />
